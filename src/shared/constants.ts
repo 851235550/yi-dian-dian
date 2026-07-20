@@ -10,9 +10,10 @@
 /** 默认用户配置 */
 export const DEFAULT_CONFIG = {
   activeProvider: "deepseek" as const,
+  apiKeys: {} as Partial<Record<string, string>>,
   targetLang: "中文",
   shortcutEnabled: true,
-} as const;
+};
 
 // ========== 悬浮框文案 ==========
 

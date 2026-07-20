@@ -23,3 +23,59 @@
   color: #999;
   margin: 0;
 }
+
+.statusOk {
+  font-size: 12px;
+  color: #52c41a;
+  margin-bottom: 8px;
+}
+
+.statusOk p {
+  margin: 0 0 4px;
+}
+
+.usageHint {
+  font-size: 11px;
+  color: #666;
+  line-height: 1.5;
+}
+
+.statusWarn {
+  font-size: 12px;
+  color: #fa8c16;
+  margin-bottom: 8px;
+}
+
+.statusWarn p {
+  margin: 0 0 6px;
+}
+
+.btn {
+  padding: 4px 14px;
+  font-size: 12px;
+  color: #fff;
+  background: #1677ff;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+}
+
+.btn:hover {
+  background: #4096ff;
+}
+
+.settingsLink {
+  margin-top: 12px;
+  padding: 2px 8px;
+  font-size: 11px;
+  color: #999;
+  background: none;
+  border: 1px solid #e0e0e0;
+  border-radius: 4px;
+  cursor: pointer;
+}
+
+.settingsLink:hover {
+  color: #1677ff;
+  border-color: #1677ff;
+}

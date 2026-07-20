@@ -1,0 +1,51 @@
+{
+  "compilerOptions": {
+    // --- 严格模式 ---
+    "strict": true,
+    "noUncheckedIndexedAccess": true,
+    "noImplicitOverride": true,
+    // --- 模块与输出 ---
+    "target": "ES2022",
+    "module": "ESNext",
+    "moduleResolution": "bundler",
+    "lib": [
+      "ES2022",
+      "DOM",
+      "DOM.Iterable"
+    ],
+    "jsx": "react-jsx",
+    "outDir": "dist",
+    "noEmit": true,
+    // --- 路径别名 ---
+    "paths": {
+      "@shared/*": [
+        "./src/shared/*"
+      ],
+      "@providers/*": [
+        "./src/providers/*"
+      ],
+      "@prompts/*": [
+        "./src/prompts/*"
+      ],
+      "@components/*": [
+        "./src/components/*"
+      ]
+    },
+    // --- 其他 ---
+    "skipLibCheck": true,
+    "esModuleInterop": true,
+    "forceConsistentCasingInFileNames": true,
+    "resolveJsonModule": true,
+    "isolatedModules": true,
+    "types": [
+      "chrome"
+    ]
+  },
+  "include": [
+    "src"
+  ],
+  "exclude": [
+    "node_modules",
+    "dist"
+  ]
+}

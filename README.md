@@ -16,6 +16,8 @@
 
 ## 安装
 
+> **注意**：插件尚未上架 Chrome Web Store，安装时需要开启开发者模式。上架后将支持一键安装。
+
 ### 方式一：下载 Release（推荐）
 
 1. 前往 [Releases](https://github.com/851235550/yi-dian-dian/releases) 页面

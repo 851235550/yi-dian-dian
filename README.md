@@ -14,30 +14,30 @@
 - 🪟 **玻璃质感 UI**：Apple 风格的磨砂玻璃悬浮面板，低调融入页面
 - 🔒 **隐私优先**：API Key 仅存本地，请求直连厂商，无中间服务器
 
-## 快速开始
+## 安装
 
-### 环境要求
+### 方式一：下载 Release（推荐）
 
-- Node.js >= 18
-- pnpm >= 8
-- Chrome 最新稳定版
+1. 前往 [Releases](https://github.com/851235550/yi-dian-dian/releases) 页面
+2. 下载最新版本的 `yi-dian-dian.zip`
+3. 解压到任意文件夹
+4. 打开 `chrome://extensions`，开启「开发者模式」
+5. 点击「加载已解压的扩展程序」，选择解压后的文件夹
+6. 右键插件图标 → 选项，填入 DeepSeek API Key，保存
 
-### 本地开发
+### 方式二：本地构建
 
 ```bash
-pnpm install    # 安装依赖
-pnpm dev        # 启动开发模式
+pnpm install && pnpm build
 ```
 
-### 加载到 Chrome
+然后将 `dist/` 文件夹加载到 `chrome://extensions` 即可。
 
-1. 打开 `chrome://extensions`，开启右上角「开发者模式」
-2. 点击「加载已解压的扩展程序」，选择项目的 `dist/` 文件夹
-3. 插件图标出现在工具栏
+## 配置 API Key
 
-### 配置
-
-右键插件图标 → 选项，填入 DeepSeek API Key（[获取 Key](https://platform.deepseek.com/api_keys)），设置翻译目标语言，保存即可。
+1. 前往 [DeepSeek 开放平台](https://platform.deepseek.com/api_keys) 获取 API Key
+2. 右键插件图标 → 选项，填入 Key
+3. 设置翻译目标语言（默认中文），保存
 
 ## 使用方式
 
@@ -47,7 +47,20 @@ pnpm dev        # 启动开发模式
 4. 点击面板顶部的「解释」tab 可切换为知识解释
 5. 按 `Esc` 或点击面板外部关闭
 
-## 可用脚本
+## 开发
+
+### 环境要求
+
+- Node.js >= 18 / pnpm >= 8 / Chrome 最新稳定版
+
+### 本地运行
+
+```bash
+pnpm install    # 安装依赖
+pnpm dev        # 启动开发模式，dist/ 加载到 chrome://extensions
+```
+
+### 可用脚本
 
 | 命令             | 说明                      |
 | ---------------- | ------------------------- |

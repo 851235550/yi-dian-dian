@@ -7,7 +7,7 @@
 
 import type { Scenario, StreamMessage } from "@shared/message";
 import { STREAM_PORT_NAME } from "@shared/message";
-import { SCENARIO_LABELS, STATUS_TEXT, BUTTON_TEXT, ERROR_MESSAGE } from "@shared/constants";
+import { SCENARIO_LABELS, STATUS_TEXT, BUTTON_TEXT, ERROR_MESSAGE, PANEL_ERROR } from "@shared/constants";
 
 // ========== 状态机 ==========
 
@@ -193,6 +193,7 @@ export class FloatingPanel {
   private fullText = "";
   private userScrolledUp = false; // 用户是否手动上滚（暂停自动滚底）
   private destroyed = false; // 防止 destroy() 重入
+  private intentionalAbort = false; // 标记是否为主动中断（切换 tab / 关闭面板），避免 onDisconnect 误报错误
 
   // ---- 流式连接 ----
   private port: chrome.runtime.Port | null = null;
@@ -312,7 +313,7 @@ export class FloatingPanel {
     const selection = window.getSelection();
     const text = selection?.toString().trim() ?? "";
     if (!text) {
-      this.showError("未选中文本");
+      this.showError(PANEL_ERROR.noSelection);
       return;
     }
 
@@ -328,9 +329,16 @@ export class FloatingPanel {
 
     // 监听 Port 断开（background 侧主动断开也算）
     this.port.onDisconnect.addListener(() => {
+      // 主动中断（切换 tab / 关闭面板）不展示错误
+      if (this.intentionalAbort) {
+        this.intentionalAbort = false;
+        this.port = null;
+        this.currentAbort = null;
+        return;
+      }
       // 如果还处于 streaming 状态却断开了，说明异常中断
       if (this.state === "streaming") {
-        this.showError("连接中断");
+        this.showError(PANEL_ERROR.connectionLost);
       }
       this.port = null;
       this.currentAbort = null;
@@ -393,9 +401,10 @@ export class FloatingPanel {
     this.startStream();
   }
 
-  /** 中断当前请求 */
+  /** 中断当前请求（主动中断，非异常） */
   private abortCurrent(): void {
     if (this.currentAbort) {
+      this.intentionalAbort = true;
       this.currentAbort();
       this.currentAbort = null;
       this.port = null;

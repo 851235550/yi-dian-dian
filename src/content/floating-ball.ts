@@ -6,6 +6,8 @@
  * 使用 Shadow DOM 隔离宿主页面样式。
  */
 
+import { BALL_TEXT } from "@shared/constants";
+
 const BALL_SIZE = 36;
 
 const BALL_STYLES = `
@@ -78,7 +80,7 @@ export class FloatingBall {
 
     this.ballEl = document.createElement("div");
     this.ballEl.className = "ball";
-    this.ballEl.textContent = "译";
+    this.ballEl.textContent = BALL_TEXT;
     this.ballEl.addEventListener("click", (e) => {
       e.stopPropagation();
       this.onClick();

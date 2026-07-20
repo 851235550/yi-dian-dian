@@ -47,3 +47,50 @@ export const ERROR_MESSAGE: Record<string, string> = {
   NETWORK: "网络连接失败，请检查网络后重试",
   UNKNOWN: "请求失败，请稍后重试",
 };
+
+// ========== 通用文案 ==========
+
+export const COMMON_TEXT = {
+  loading: "加载中…",
+} as const;
+
+// ========== Popup 文案 ==========
+
+export const POPUP_TEXT = {
+  title: "译点点",
+  subtitle: "划词翻译 · 解释",
+  keyConfigured: "API Key 已配置",
+  usageHint: "在任意网页上选中文字，悬浮框会自动弹出并翻译。",
+  keyNotConfigured: "⚠️ 尚未配置 API Key",
+  goToSettings: "前往设置",
+  settings: "⚙ 设置",
+} as const;
+
+// ========== Options 文案 ==========
+
+export const OPTIONS_TEXT = {
+  title: "译点点 设置",
+  providerLabel: "大模型厂商",
+  comingSoon: "（即将支持）",
+  apiKeyLabel: "API Key",
+  apiKeyPlaceholder: "请输入 API Key",
+  apiKeyPlaceholderDisabled: "暂不支持",
+  apiKeyHint: "API Key 仅存储在本地浏览器中，不会上传到任何服务器。",
+  targetLangLabel: "翻译目标语言",
+  targetLangPlaceholder: "如：中文、English、日本語",
+  saveButton: "保存",
+  saving: "保存中…",
+  saved: "✅ 已保存",
+  saveError: "❌ 保存失败，请重试",
+} as const;
+
+// ========== 悬浮框本地错误文案 ==========
+
+export const PANEL_ERROR = {
+  noSelection: "未选中文本",
+  connectionLost: "连接中断",
+} as const;
+
+// ========== 悬浮球文案 ==========
+
+export const BALL_TEXT = "译";

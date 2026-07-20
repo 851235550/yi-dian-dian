@@ -1,0 +1,24 @@
+name: 创建版本 Tag
+
+# 手动触发，输入版本号后自动打 tag 并推送
+
+on:
+  workflow_dispatch:
+    inputs:
+      version:
+        description: "版本号（如 0.1.0，不要加 v 前缀）"
+        required: true
+        type: string
+
+jobs:
+  create-tag:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v5
+
+      - name: 创建并推送 tag
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git tag "v${{ inputs.version }}"
+          git push origin "v${{ inputs.version }}"

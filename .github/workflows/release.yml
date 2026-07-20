@@ -1,4 +1,4 @@
-name: 构建并发布扩展包
+name: build & release 
 
 # 当推送 v* 格式的 tag 时自动触发
 
@@ -10,6 +10,8 @@ on:
 jobs:
   build-and-release:
     runs-on: ubuntu-latest
+    permissions:
+      contents: write # 允许创建 Release
     steps:
       - uses: actions/checkout@v5
 

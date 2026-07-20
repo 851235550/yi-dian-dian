@@ -4,10 +4,10 @@ export default defineManifest({
   manifest_version: 3,
   name: "译点点",
   version: "0.1.0",
-  description: "划词翻译 Chrome 插件 — 支持翻译与解释，基于大模型 API",
+  description: "在任意网页选中文字，AI 即时翻译（含音标词性）与知识解释",
 
   // 权限最小化：只申请当前功能实际需要的（见 CONSTRAINTS.md）
-  permissions: ["storage", "contextMenus", "activeTab"],
+  permissions: ["storage", "activeTab"],
 
   // 插件图标（先用占位说明，后续补充图标文件）
   // icons: {

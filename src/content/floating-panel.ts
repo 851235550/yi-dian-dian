@@ -6,7 +6,8 @@
  */
 
 import type { Scenario, StreamMessage } from "@shared/message";
-import { SCENARIO_LABELS, STATUS_TEXT, BUTTON_TEXT } from "@shared/constants";
+import { STREAM_PORT_NAME } from "@shared/message";
+import { SCENARIO_LABELS, STATUS_TEXT, BUTTON_TEXT, ERROR_MESSAGE } from "@shared/constants";
 
 // ========== 状态机 ==========
 
@@ -28,13 +29,22 @@ const PANEL_STYLES = `
 .panel {
   width: 360px;
   max-height: 360px;
-  background: #fff;
-  border: 1px solid #e0e0e0;
-  border-radius: 10px;
-  box-shadow: 0 4px 24px rgba(0, 0, 0, 0.12);
+  /* Apple 风格玻璃效果 */
+  background: rgba(255, 255, 255, 0.72);
+  backdrop-filter: blur(24px) saturate(190%);
+  -webkit-backdrop-filter: blur(24px) saturate(190%);
+  border: 0.5px solid rgba(255, 255, 255, 0.35);
+  border-radius: 14px;
+  /* 外阴影 + 内高光模拟玻璃厚度 */
+  box-shadow:
+    0 0 0 0.5px rgba(255, 255, 255, 0.4) inset,
+    0 1px 4px rgba(0, 0, 0, 0.04),
+    0 4px 20px rgba(0, 0, 0, 0.07),
+    0 8px 40px rgba(0, 0, 0, 0.04);
   display: flex;
   flex-direction: column;
   overflow: hidden;
+  transition: opacity 0.15s ease;
 }
 
 /* ---- Tab 栏 ---- */
@@ -42,26 +52,27 @@ const PANEL_STYLES = `
 .tab-bar {
   display: flex;
   align-items: center;
-  border-bottom: 1px solid #eee;
+  border-bottom: 0.5px solid rgba(0, 0, 0, 0.06);
   padding: 0 10px;
   gap: 2px;
   flex-shrink: 0;
+  background: rgba(255, 255, 255, 0.3);
 }
 
 .tab {
   padding: 8px 14px;
   font-size: 13px;
-  color: #666;
+  color: #999;
   cursor: pointer;
   border: none;
   background: none;
   border-bottom: 2px solid transparent;
-  transition: color 0.15s, border-color 0.15s;
+  transition: color 0.2s ease, border-color 0.2s ease;
   flex-shrink: 0;
 }
 
 .tab:hover {
-  color: #333;
+  color: #666;
 }
 
 .tab.active {
@@ -74,16 +85,17 @@ const PANEL_STYLES = `
   margin-left: auto;
   padding: 4px 8px;
   font-size: 16px;
-  color: #999;
+  color: #bbb;
   cursor: pointer;
   border: none;
   background: none;
   line-height: 1;
   flex-shrink: 0;
+  transition: color 0.2s ease;
 }
 
 .tab-close:hover {
-  color: #333;
+  color: #666;
 }
 
 /* ---- 内容区域 ---- */
@@ -120,7 +132,8 @@ const PANEL_STYLES = `
   padding: 6px 14px 10px;
   gap: 8px;
   flex-shrink: 0;
-  border-top: 1px solid #f0f0f0;
+  border-top: 0.5px solid rgba(0, 0, 0, 0.06);
+  background: rgba(255, 255, 255, 0.25);
 }
 
 .action-bar.hidden {
@@ -130,28 +143,30 @@ const PANEL_STYLES = `
 .btn {
   padding: 4px 12px;
   font-size: 12px;
-  border-radius: 4px;
+  border-radius: 6px;
   cursor: pointer;
-  border: 1px solid #d9d9d9;
-  background: #fff;
-  color: #333;
-  transition: all 0.15s;
+  border: 0.5px solid rgba(0, 0, 0, 0.1);
+  background: rgba(255, 255, 255, 0.55);
+  color: #555;
+  transition: all 0.2s ease;
 }
 
 .btn:hover {
-  border-color: #1677ff;
+  border-color: rgba(22, 119, 255, 0.25);
   color: #1677ff;
+  background: rgba(22, 119, 255, 0.06);
 }
 
 .btn-primary {
-  background: #1677ff;
+  background: rgba(22, 119, 255, 0.8);
   color: #fff;
-  border-color: #1677ff;
+  border-color: transparent;
 }
 
 .btn-primary:hover {
-  background: #4096ff;
-  border-color: #4096ff;
+  background: rgba(22, 119, 255, 0.92);
+  border-color: transparent;
+  color: #fff;
 }
 
 .spacer {
@@ -302,7 +317,7 @@ export class FloatingPanel {
     }
 
     // 建立 Port 连接
-    this.port = chrome.runtime.connect({ name: "ai-stream" });
+    this.port = chrome.runtime.connect({ name: STREAM_PORT_NAME });
 
     // 注册当前连接的 abort 逻辑
     this.currentAbort = () => {
@@ -331,7 +346,10 @@ export class FloatingPanel {
           this.onDone(msg.payload.fullText);
           break;
         case "STREAM_ERROR":
-          this.showError(msg.payload.message);
+          // 通过错误码查表展示中文提示，若查不到则回退到 message 字段
+          this.showError(
+            ERROR_MESSAGE[msg.payload.code] ?? msg.payload.message ?? STATUS_TEXT.error,
+          );
           break;
       }
     });

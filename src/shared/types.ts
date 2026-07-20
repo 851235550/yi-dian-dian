@@ -5,15 +5,6 @@
  * 随着开发迭代逐步扩充。
  */
 
-// ========== Storage Schema ==========
-
-/** 插件持久化存储的结构 */
-export interface StorageSchema {
-  config: UserConfig;
-  /** 翻译历史（默认不开启，预留字段） */
-  history?: HistoryItem[];
-}
-
 /** 用户可配置项 */
 export interface UserConfig {
   /** 当前使用的厂商 */

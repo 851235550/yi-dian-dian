@@ -8,8 +8,6 @@
 import { FloatingPanel } from "./floating-panel";
 import { FloatingBall, calcBallPosition } from "./floating-ball";
 
-console.log("[译点点] content script 已注入:", window.location.href);
-
 // ========== 全局状态 ==========
 
 /** 当前活跃的悬浮球 */

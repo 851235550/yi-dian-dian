@@ -40,9 +40,10 @@ export const BUTTON_TEXT = {
 
 // ========== 错误提示 ==========
 
-export const ERROR_MESSAGE = {
+/** 错误码 → 中文文案映射，content script 在收到 STREAM_ERROR 时查表展示 */
+export const ERROR_MESSAGE: Record<string, string> = {
   INVALID_KEY: "API Key 无效，请在设置中检查",
   RATE_LIMIT: "请求过于频繁，请稍后再试",
   NETWORK: "网络连接失败，请检查网络后重试",
   UNKNOWN: "请求失败，请稍后重试",
-} as const;
+};

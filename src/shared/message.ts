@@ -55,9 +55,10 @@ export interface StreamDone {
 export interface StreamError {
   type: "STREAM_ERROR";
   payload: {
-    message: string;
-    /** 归一化的错误码，content 侧据此显示对应中文提示 */
-    code?: "INVALID_KEY" | "RATE_LIMIT" | "NETWORK" | "UNKNOWN";
+    /** 归一化错误码，content 侧据此查 ERROR_MESSAGE 显示中文提示 */
+    code: "INVALID_KEY" | "RATE_LIMIT" | "NETWORK" | "UNKNOWN";
+    /** 原始错误信息（仅 provider 层使用，作为后备展示） */
+    message?: string;
   };
 }
 
@@ -88,23 +89,4 @@ export interface SetConfigResponse {
   payload: { success: boolean };
 }
 
-// ========== 发送辅助函数 ==========
-
-/**
- * 向 background 发送一次性消息并等待响应（类型安全封装）
- * 用于 popup/options 读写配置
- */
-export async function sendMessage<T extends OneShotMessage>(
-  message: T,
-): Promise<OneShotMessage> {
-  return chrome.runtime.sendMessage(message);
-}
-
-/**
- * 建立到 background 的流式 Port 连接
- * content script 调用此函数获取 Port，然后发送 StreamRequest 启动流
- */
-export function connectStreamPort(): chrome.runtime.Port {
-  return chrome.runtime.connect({ name: STREAM_PORT_NAME });
-}
-
+// ========== 一次性消息（popup/options ⟷ background） ==========

@@ -8,8 +8,83 @@
 import type { UserConfig } from "./types";
 import { DEFAULT_CONFIG } from "./constants";
 
-/** storage 中 config 的 key */
+/** storage key */
 const CONFIG_KEY = "config";
+const CACHE_KEY = "translationCache";
+
+/** 缓存过期时间：15 天（毫秒） */
+const CACHE_TTL_MS = 15 * 24 * 60 * 60 * 1000;
+
+// ========== 缓存数据结构 ==========
+
+interface CacheEntry {
+  result: string;
+  timestamp: number; // Date.now()
+}
+
+interface CacheStore {
+  [cacheKey: string]: CacheEntry;
+}
+
+/** 构建缓存 key：scenario:targetLang:原始文本 */
+export function buildCacheKey(
+  scenario: string,
+  targetLang: string,
+  text: string,
+): string {
+  return `${scenario}:${targetLang}:${text}`;
+}
+
+/** 读取缓存。命中且未过期返回结果，否则返回 null。 */
+export async function getCachedResult(
+  cacheKey: string,
+): Promise<string | null> {
+  try {
+    const result = await chrome.storage.local.get(CACHE_KEY);
+    const store = (result[CACHE_KEY] ?? {}) as CacheStore;
+    const entry = store[cacheKey];
+    if (!entry) return null;
+
+    const age = Date.now() - entry.timestamp;
+    if (age > CACHE_TTL_MS) {
+      // 过期了，顺手删掉
+      delete store[cacheKey];
+      await chrome.storage.local.set({ [CACHE_KEY]: store });
+      return null;
+    }
+
+    return entry.result;
+  } catch {
+    return null; // 读取失败视为未命中
+  }
+}
+
+/** 写入缓存，同时清理所有已过期的条目。 */
+export async function setCachedResult(
+  cacheKey: string,
+  result: string,
+): Promise<void> {
+  try {
+    const raw = await chrome.storage.local.get(CACHE_KEY);
+    const store = (raw[CACHE_KEY] ?? {}) as CacheStore;
+
+    // 写入新条目
+    store[cacheKey] = { result, timestamp: Date.now() };
+
+    // 清理过期条目
+    const now = Date.now();
+    for (const key of Object.keys(store)) {
+      const entry = store[key];
+      if (entry && now - entry.timestamp > CACHE_TTL_MS) {
+        delete store[key];
+      }
+    }
+
+    await chrome.storage.local.set({ [CACHE_KEY]: store });
+  } catch {
+    // 写入失败静默忽略，不影响翻译主流程
+  }
+}
 
 /**
  * 读取用户配置。若尚未配置则返回默认值。

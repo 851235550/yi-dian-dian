@@ -19,17 +19,25 @@ const BALL_STYLES = `
   width: ${BALL_SIZE}px;
   height: ${BALL_SIZE}px;
   border-radius: 50%;
-  background: #1677ff;
+  /* Apple 风格玻璃效果 */
+  background: rgba(22, 119, 255, 0.55);
+  backdrop-filter: blur(14px) saturate(180%);
+  -webkit-backdrop-filter: blur(14px) saturate(180%);
+  /* 微妙的白色内边框模拟玻璃厚度 */
+  box-shadow:
+    0 0 0 0.5px rgba(255, 255, 255, 0.25) inset,
+    0 1px 4px rgba(0, 0, 0, 0.06),
+    0 2px 8px rgba(22, 119, 255, 0.1);
   color: #fff;
   display: flex;
   align-items: center;
   justify-content: center;
   cursor: pointer;
-  box-shadow: 0 2px 12px rgba(22, 119, 255, 0.35);
-  font-size: 17px;
+  font-size: 15px;
   font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+  font-weight: 500;
   user-select: none;
-  transition: transform 0.12s ease, box-shadow 0.12s ease;
+  transition: transform 0.2s cubic-bezier(0.2, 0.9, 0.4, 1), box-shadow 0.2s ease, background 0.2s ease;
   transform: scale(0);
 }
 
@@ -39,11 +47,15 @@ const BALL_STYLES = `
 
 .ball:hover {
   transform: scale(1.08);
-  box-shadow: 0 4px 18px rgba(22, 119, 255, 0.45);
+  background: rgba(22, 119, 255, 0.7);
+  box-shadow:
+    0 0 0 0.5px rgba(255, 255, 255, 0.35) inset,
+    0 2px 8px rgba(0, 0, 0, 0.08),
+    0 4px 14px rgba(22, 119, 255, 0.18);
 }
 
 .ball:active {
-  transform: scale(0.95);
+  transform: scale(0.94);
 }
 `;
 

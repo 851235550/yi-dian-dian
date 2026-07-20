@@ -11,14 +11,12 @@
 import type { StreamRequest, StreamMessage } from "@shared/message";
 import type { AbortFn } from "../providers/types";
 import { STREAM_PORT_NAME } from "@shared/message";
-import { getConfig, setConfig } from "@shared/storage";
+import { getConfig, setConfig, getCachedResult, setCachedResult, buildCacheKey } from "@shared/storage";
 import { createProvider } from "../providers";
 import {
   buildTranslateMessages,
   buildExplainMessages,
 } from "../prompts";
-
-console.log("[译点点] background service worker 已启动");
 
 // ========== Port ↔ Abort 映射 ==========
 // 维护每个 Port 连接对应的 abort 函数，用于在连接断开时中断底层 fetch。
@@ -32,14 +30,11 @@ chrome.runtime.onConnect.addListener((port) => {
   // 只处理流式通信的 Port，过滤掉其他可能的连接
   if (port.name !== STREAM_PORT_NAME) return;
 
-  console.log("[译点点] 收到流式 Port 连接");
-
   // 一个 Port 只处理一条 STREAM_REQUEST
   port.onMessage.addListener(async (message: StreamRequest) => {
     if (message.type !== "STREAM_REQUEST") return;
 
     const { scenario, text, targetLang } = message.payload;
-    console.log(`[译点点] 收到流式请求: scenario=${scenario}, text="${text.slice(0, 30)}..."`);
 
     try {
       // 1. 读取用户配置
@@ -50,32 +45,45 @@ chrome.runtime.onConnect.addListener((port) => {
       if (!apiKey) {
         const errorMsg: StreamMessage = {
           type: "STREAM_ERROR",
-          payload: {
-            message: "未配置 API Key",
-            code: "INVALID_KEY",
-          },
+          payload: { code: "INVALID_KEY" },
         };
         port.postMessage(errorMsg);
         port.disconnect();
         return;
       }
 
-      // 3. 获取对应的 Provider 实例
+      // 3. 查缓存（15 天内命中则直接返回，不走 API）
+      const effectiveLang = targetLang ?? config.targetLang;
+      const cacheKey = buildCacheKey(scenario, effectiveLang, text);
+      const cached = await getCachedResult(cacheKey);
+      if (cached !== null) {
+        const chunkMsg: StreamMessage = {
+          type: "STREAM_CHUNK",
+          payload: { delta: cached },
+        };
+        port.postMessage(chunkMsg);
+        const doneMsg: StreamMessage = {
+          type: "STREAM_DONE",
+          payload: { fullText: cached },
+        };
+        port.postMessage(doneMsg);
+        port.disconnect();
+        return;
+      }
+
+      // 4. 获取对应的 Provider 实例
       const provider = createProvider(config.activeProvider);
       if (!provider) {
         const errorMsg: StreamMessage = {
           type: "STREAM_ERROR",
-          payload: {
-            message: `不支持的厂商: ${config.activeProvider}`,
-            code: "UNKNOWN",
-          },
+          payload: { code: "UNKNOWN" },
         };
         port.postMessage(errorMsg);
         port.disconnect();
         return;
       }
 
-      // 4. 根据场景构建消息
+      // 5. 根据场景构建消息
       const messages =
         scenario === "explain"
           ? buildExplainMessages({ text })
@@ -84,12 +92,11 @@ chrome.runtime.onConnect.addListener((port) => {
               targetLang: targetLang ?? config.targetLang,
             });
 
-      // 5. 调用 provider 流式接口，保存 abort 函数
+      // 6. 调用 provider 流式接口，保存 abort 函数
       const abort = provider.streamComplete(
         messages,
         { apiKey },
         {
-          // 每个分片立即转发给 content
           onChunk(delta: string) {
             const msg: StreamMessage = {
               type: "STREAM_CHUNK",
@@ -97,8 +104,9 @@ chrome.runtime.onConnect.addListener((port) => {
             };
             port.postMessage(msg);
           },
-          // 流正常结束
           onDone(fullText: string) {
+            // 写入缓存（后台异步，不阻塞响应）
+            setCachedResult(cacheKey, fullText);
             const msg: StreamMessage = {
               type: "STREAM_DONE",
               payload: { fullText },
@@ -111,8 +119,8 @@ chrome.runtime.onConnect.addListener((port) => {
             const msg: StreamMessage = {
               type: "STREAM_ERROR",
               payload: {
+                code: error.code ?? "UNKNOWN",
                 message: error.message,
-                code: error.code,
               },
             };
             port.postMessage(msg);
@@ -127,10 +135,7 @@ chrome.runtime.onConnect.addListener((port) => {
       // 配置读取等异常
       const errorMsg: StreamMessage = {
         type: "STREAM_ERROR",
-        payload: {
-          message: err instanceof Error ? err.message : "内部错误",
-          code: "UNKNOWN",
-        },
+        payload: { code: "UNKNOWN" },
       };
       port.postMessage(errorMsg);
       port.disconnect();
@@ -139,7 +144,6 @@ chrome.runtime.onConnect.addListener((port) => {
 
   // Port 断开时中断底层请求（用户关闭悬浮框/切换场景/选中新文本）
   port.onDisconnect.addListener(() => {
-    console.log("[译点点] Port 断开，中断底层请求");
     const abort = abortMap.get(port);
     if (abort) {
       abort();

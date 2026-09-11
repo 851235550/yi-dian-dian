@@ -42,16 +42,13 @@ jobs:
         with:
           ref: ${{ needs.create-tag.outputs.tag }}
 
-      - name: 安装 pnpm
-        uses: pnpm/action-setup@v4
+      - name: 安装 pnpm 与 Node.js
+        uses: pnpm/setup@v2
         with:
-          version: 9
-
-      - name: 安装 Node.js
-        uses: actions/setup-node@v4
-        with:
-          node-version: 20
-          cache: "pnpm"
+          version: 11
+          runtime: node@20
+          cache: true
+          install: false
 
       - name: 安装依赖
         run: pnpm install --frozen-lockfile
@@ -65,7 +62,7 @@ jobs:
           zip -r ../yi-dian-dian.zip .
 
       - name: 创建 GitHub Release
-        uses: softprops/action-gh-release@v2
+        uses: softprops/action-gh-release@v3
         with:
           tag_name: ${{ needs.create-tag.outputs.tag }}
           name: ${{ needs.create-tag.outputs.tag }}

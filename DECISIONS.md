@@ -86,6 +86,22 @@ background 监听 `onDisconnect` 中断底层请求。popup/options 的配置读
 
 ---
 
+## 006 — 版本号以 package.json 为唯一来源
+
+**背景**：`manifest.config.ts` 与 `package.json` 各自维护一份 `version`（曾都是 `0.1.0`），
+手动发版时容易改漏，导致 manifest 版本、git tag 与 Release 三者不一致。
+
+**决定**：以 `package.json` 的 `version` 作为唯一来源，`manifest.config.ts` 通过
+`import packageJson` 自动读取；发布工作流（`.github/workflows/create-tag.yml`）也读取
+`package.json` 的版本号打 tag。发版时只改 `package.json` 一处。
+
+**理由**：单一来源避免多处维护不一致；Chrome Web Store 上架读取的版本来自构建产物
+`dist/manifest.json`，它由 `package.json` 生成，因此天然与 git tag、Release 保持一致。
+
+**被否决的备选**：继续在 `manifest.config.ts` 中手写版本号（容易出现两处不同步，人工核对成本高）。
+
+---
+
 ## 决策模板（复制这段填写新决策）
 
 ```

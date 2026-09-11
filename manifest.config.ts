@@ -1,9 +1,11 @@
 import { defineManifest } from "@crxjs/vite-plugin";
+// 版本号统一从 package.json 读取，发版时只改 package.json 一处（见 AGENTS.md）
+import packageJson from "./package.json";
 
 export default defineManifest({
   manifest_version: 3,
   name: "译点点",
-  version: "0.1.0",
+  version: packageJson.version,
   description: "在任意网页选中文字，AI 即时翻译（含音标词性）与知识解释",
 
   // 权限最小化：只申请当前功能实际需要的（见 CONSTRAINTS.md）

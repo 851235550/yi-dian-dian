@@ -1,13 +1,8 @@
 name: build & release 
-# 手动触发：输入版本号 → 打 tag → 构建 → 创建 Release
+# 手动触发：读取 package.json 版本号 → 打 tag → 构建 → 创建 Release
 
 on:
-  workflow_dispatch:
-    inputs:
-      version:
-        description: "版本号（如 0.1.0，不要加 v 前缀）"
-        required: true
-        type: string
+  workflow_dispatch: {}
 
 jobs:
   # ---- 第一步：打 tag ----
@@ -18,12 +13,18 @@ jobs:
     outputs:
       tag: ${{ steps.tag.outputs.tag }}
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v7
+
+      - name: 读取版本号
+        id: version
+        run: |
+          VERSION=$(node -p "require('./package.json').version")
+          echo "version=$VERSION" >> "$GITHUB_OUTPUT"
 
       - name: 创建并推送 tag
         id: tag
         run: |
-          TAG="v${{ inputs.version }}"
+          TAG="v${{ steps.version.outputs.version }}"
           git config user.name "github-actions[bot]"
           git config user.email "github-actions[bot]@users.noreply.github.com"
           git tag "$TAG"
@@ -37,7 +38,7 @@ jobs:
     permissions:
       contents: write
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v7
         with:
           ref: ${{ needs.create-tag.outputs.tag }}
 

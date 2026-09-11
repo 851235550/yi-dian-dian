@@ -53,6 +53,7 @@ pnpm test       # vitest
 - 异步函数必须处理错误，禁止裸 `await fetch(...)` 不 try/catch（API 调用会失败：网络错误、限流、Key 无效）。
 - 所有面向用户的文案（悬浮框文字、错误提示）统一放在 `shared/constants.ts` 或未来的 i18n 文件中，禁止硬编码在组件里。
 - 要有有意义的中文注释。
+- 版本号以 `package.json` 为唯一来源，`manifest.config.ts` 自动读取。修改代码后若涉及功能/行为变更，需按 semver 更新 `package.json` 的 `version`，不要手动修改 manifest 中的版本号。
 
 ### Provider 层示例（新增厂商时严格照抄此模式）
 
@@ -171,6 +172,7 @@ export const deepseekProvider: Provider = {
 - [ ] 新增/修改的 provider 实现了 `streamComplete`，abort 函数真实可用
 - [ ] 流式请求在用户取消/关闭悬浮框时正确中断，没有内存泄漏或写入已卸载 DOM 的情况
 - [ ] Port 断开（`port.onDisconnect`）已处理，background 侧对应 abort 了底层 fetch
+- [ ] 本次改动涉及功能/行为变更时，`package.json` 的 `version` 已按 semver 更新
 
 ## 相关文档
 

@@ -73,6 +73,12 @@ pnpm dev        # 启动开发模式，dist/ 加载到 chrome://extensions
 | `pnpm lint`      | ESLint 代码检查           |
 | `pnpm test`      | Vitest 测试               |
 
+### 版本号约定
+
+- `package.json` 的 `version` 是唯一版本来源，发版时只需修改这一处
+- `manifest.config.ts` 会从 `package.json` 自动读取版本号，请勿手动修改
+- 发布工作流会读取 `package.json` 的版本号自动创建 git tag 与 Release
+
 ## 支持的厂商
 
 | 厂商      | 状态      |

@@ -1,0 +1,5 @@
+# pnpm 11 起，依赖的构建脚本（postinstall 等）默认需要审批。
+# esbuild 的 postinstall 会下载平台对应的二进制文件，必须允许其执行，
+# 否则 pnpm install --frozen-lockfile 会以 ERR_PNPM_IGNORED_BUILDS 失败。
+allowBuilds:
+  esbuild: true

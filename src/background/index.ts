@@ -9,13 +9,14 @@
  */
 
 import type { StreamRequest, StreamMessage } from "@shared/message";
-import type { AbortFn } from "../providers/types";
+import type { AbortFn, ChatMessage } from "../providers/types";
 import { STREAM_PORT_NAME } from "@shared/message";
 import { getConfig, setConfig, getCachedResult, setCachedResult, buildCacheKey } from "@shared/storage";
 import { createProvider } from "../providers";
 import {
   buildTranslateMessages,
   buildExplainMessages,
+  buildPronounceMessages,
 } from "../prompts";
 
 // ========== Port ↔ Abort 映射 ==========
@@ -84,13 +85,17 @@ chrome.runtime.onConnect.addListener((port) => {
       }
 
       // 5. 根据场景构建消息
-      const messages =
-        scenario === "explain"
-          ? buildExplainMessages({ text })
-          : buildTranslateMessages({
-              text,
-              targetLang: targetLang ?? config.targetLang,
-            });
+      let messages: ChatMessage[];
+      if (scenario === "explain") {
+        messages = buildExplainMessages({ text });
+      } else if (scenario === "pronounce") {
+        messages = buildPronounceMessages({ text });
+      } else {
+        messages = buildTranslateMessages({
+          text,
+          targetLang: targetLang ?? config.targetLang,
+        });
+      }
 
       // 6. 调用 provider 流式接口，保存 abort 函数
       const abort = provider.streamComplete(

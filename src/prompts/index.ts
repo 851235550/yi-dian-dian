@@ -7,3 +7,6 @@ export type { TranslateInput } from "./translate";
 
 export { buildExplainMessages } from "./explain";
 export type { ExplainInput } from "./explain";
+
+export { buildPronounceMessages } from "./pronounce";
+export type { PronounceInput } from "./pronounce";

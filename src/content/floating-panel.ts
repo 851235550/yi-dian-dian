@@ -186,6 +186,7 @@ export class FloatingPanel {
   private actionBarEl: HTMLElement;
   private translateTabEl: HTMLElement;
   private explainTabEl: HTMLElement;
+  private pronounceTabEl: HTMLElement;
 
   // ---- 状态 ----
   private state: PanelState = "idle";
@@ -224,6 +225,7 @@ export class FloatingPanel {
     this.actionBarEl = this.panelEl.querySelector(".action-bar")!;
     this.translateTabEl = this.panelEl.querySelector('[data-scenario="translate"]')!;
     this.explainTabEl = this.panelEl.querySelector('[data-scenario="explain"]')!;
+    this.pronounceTabEl = this.panelEl.querySelector('[data-scenario="pronounce"]')!;
 
     // 挂载到页面
     document.body.appendChild(host);
@@ -238,6 +240,7 @@ export class FloatingPanel {
       <div class="tab-bar">
         <button class="tab active" data-scenario="translate">${SCENARIO_LABELS.translate}</button>
         <button class="tab" data-scenario="explain">${SCENARIO_LABELS.explain}</button>
+        <button class="tab" data-scenario="pronounce">${SCENARIO_LABELS.pronounce}</button>
         <button class="tab-close" data-action="close">✕</button>
       </div>
       <div class="content-area loading">${STATUS_TEXT.idle}</div>
@@ -314,6 +317,12 @@ export class FloatingPanel {
     const text = selection?.toString().trim() ?? "";
     if (!text) {
       this.showError(PANEL_ERROR.noSelection);
+      return;
+    }
+
+    // 发音场景只支持单个单词（不含空格），短语/句子直接给出提示，不发起请求
+    if (this.activeScenario === "pronounce" && /\s/.test(text)) {
+      this.showHint(PANEL_ERROR.pronounceWordOnly);
       return;
     }
 
@@ -395,6 +404,7 @@ export class FloatingPanel {
       scenario === "translate",
     );
     this.explainTabEl.classList.toggle("active", scenario === "explain");
+    this.pronounceTabEl.classList.toggle("active", scenario === "pronounce");
 
     // 立即清空 + 发起新请求（根据 PRD0.md 的 Tab 切换交互规格）
     this.abortCurrent();
@@ -441,6 +451,18 @@ export class FloatingPanel {
     this.contentEl.classList.remove("loading");
     this.setState("error");
     this.actionBarEl.classList.remove("hidden");
+    this.port = null;
+    this.currentAbort = null;
+  }
+
+  /** 显示纯提示信息（非错误、非流式），如"发音仅支持单个单词" */
+  private showHint(message: string): void {
+    this.contentEl.textContent = message;
+    this.contentEl.classList.remove("loading");
+    this.contentEl.classList.remove("error");
+    this.setState("done");
+    // 提示信息无需复制/重试，隐藏底部操作栏
+    this.actionBarEl.classList.add("hidden");
     this.port = null;
     this.currentAbort = null;
   }

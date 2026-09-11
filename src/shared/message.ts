@@ -14,7 +14,7 @@ import type { UserConfig } from "./types";
 // ========== 场景类型 ==========
 
 /** 业务场景 */
-export type Scenario = "translate" | "explain";
+export type Scenario = "translate" | "explain" | "pronounce";
 
 // ========== Port 流式消息（content ⟷ background） ==========
 

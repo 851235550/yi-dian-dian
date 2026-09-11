@@ -21,6 +21,7 @@ export const DEFAULT_CONFIG = {
 export const SCENARIO_LABELS = {
   translate: "翻译",
   explain: "解释",
+  pronounce: "发音",
 } as const;
 
 /** 状态提示 */
@@ -89,6 +90,7 @@ export const OPTIONS_TEXT = {
 export const PANEL_ERROR = {
   noSelection: "未选中文本",
   connectionLost: "连接中断",
+  pronounceWordOnly: "发音仅支持单个单词，请选中一个单词后重试",
 } as const;
 
 // ========== 悬浮球文案 ==========

@@ -1,6 +1,6 @@
 {
   "name": "yi-dian-dian",
-  "version": "0.1.3",
+  "version": "0.1.4",
   "description": "译点点 - 划词翻译 Chrome 插件，调用大模型 API 对选中内容进行翻译/解释",
   "type": "module",
   "scripts": {
